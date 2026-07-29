@@ -40,6 +40,18 @@ docker compose up --build -d
 docker compose ps
 ```
 
+在群晖 Container Manager 中使用“项目”部署时，将卷改成群晖上的绝对路径，例如：
+
+```yaml
+volumes:
+  - /volume1/docker/m3u8-downloader/data:/data
+  - /volume1/video/m3u8-downloads:/downloads
+```
+
+容器启动时会修正这两个挂载目录的所有者，然后以非 root 用户运行服务，因此通常无需
+手工将宿主机目录设置成 UID `10001`。群晖共享文件夹 ACL 仍需允许 Container Manager
+访问；不要在项目配置中设置 `user`，也不要将这两个卷挂载为只读。
+
 打开：
 
 - 管理页：http://localhost:8080

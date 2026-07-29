@@ -25,6 +25,10 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
     stop_grace_period: 20s
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=3)"]

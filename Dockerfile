@@ -23,6 +23,8 @@ COPY pyproject.toml README.md ./
 COPY app ./app
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh
+
 RUN python -m pip install --no-cache-dir . \
     && mkdir -p /data/work /data/logs /downloads \
     && chown -R app:app /data /downloads \

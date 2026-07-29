@@ -14,6 +14,11 @@ from app.config import get_settings
 from app.supervisor import TaskSupervisor
 
 
+def cleanup_stale_work_root(work_root: Path) -> None:
+    shutil.rmtree(work_root, ignore_errors=True)
+    work_root.mkdir(parents=True, exist_ok=True)
+
+
 def create_app(start_supervisor: bool = True) -> FastAPI:
     supervisor = TaskSupervisor()
     app_root = Path(__file__).resolve().parent
@@ -21,6 +26,9 @@ def create_app(start_supervisor: bool = True) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        settings = get_settings()
+        settings.ensure_directories()
+        cleanup_stale_work_root(settings.work_root)
         supervisor_task = asyncio.create_task(supervisor.run()) if start_supervisor else None
         try:
             yield

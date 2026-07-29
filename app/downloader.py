@@ -243,6 +243,10 @@ def _set_failure(task_id: str, code: str, message: str) -> None:
     )
 
 
+def cleanup_completed_work_dir(work_dir: Path) -> None:
+    shutil.rmtree(work_dir)
+
+
 def run_download_task(task_id: str, cancel_event: threading.Event) -> None:
     settings = get_settings()
     settings.ensure_directories()
@@ -308,12 +312,10 @@ def run_download_task(task_id: str, cancel_event: threading.Event) -> None:
                 media_info=media_info,
                 completed_at=utc_now(),
             )
-            for path in work_dir.iterdir():
-                if path.name != "upload.m3u8":
-                    if path.is_dir():
-                        shutil.rmtree(path, ignore_errors=True)
-                    else:
-                        path.unlink(missing_ok=True)
+            try:
+                cleanup_completed_work_dir(work_dir)
+            except OSError as exc:
+                logger.warning(f"Could not remove completed task work directory: {exc}")
             return
         except Exception as exc:
             logger.error(str(exc))

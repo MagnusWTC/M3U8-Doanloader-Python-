@@ -5,9 +5,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     M3U8_DATA_ROOT=/data \
     M3U8_DOWNLOAD_ROOT=/downloads \
-    YTDLP_NO_PLUGINS=1
+    YTDLP_NO_PLUGINS=1 \
+    # 新增：设置国内 PyPI 镜像源，pip 安装也会变快
+    PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 
-RUN apt-get update \
+# 关键修复：将 deb.debian.org 替换为阿里云镜像
+RUN sed -i 's|http://deb.debian.org|http://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's|http://security.debian.org|http://mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update \
     && apt-get install --no-install-recommends -y ffmpeg gosu tini \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 10001 app \
@@ -17,6 +22,7 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY app ./app
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 RUN python -m pip install --no-cache-dir . \
     && mkdir -p /data/work /data/logs /downloads \
     && chown -R app:app /data /downloads \

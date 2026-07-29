@@ -1,0 +1,34 @@
+services:
+  downloader:
+    build:
+      context: .
+    image: m3u8-downloader:local
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    environment:
+      M3U8_DATA_ROOT: /data
+      M3U8_DOWNLOAD_ROOT: /downloads
+      M3U8_MAX_CONCURRENT_TASKS: ${MAX_CONCURRENT_TASKS:-2}
+      M3U8_CONCURRENT_FRAGMENTS: ${CONCURRENT_FRAGMENTS:-4}
+      M3U8_FRAGMENT_RETRIES: ${FRAGMENT_RETRIES:-10}
+      M3U8_TASK_MAX_ATTEMPTS: ${TASK_MAX_ATTEMPTS:-3}
+      M3U8_SOCKET_TIMEOUT: ${SOCKET_TIMEOUT:-30}
+      YTDLP_NO_PLUGINS: "1"
+    volumes:
+      - "${DOWNLOAD_DIR:-./downloads}:/downloads"
+      - "./data:/data"
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 20s
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/readyz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3

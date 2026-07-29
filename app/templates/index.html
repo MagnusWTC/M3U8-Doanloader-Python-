@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>M3U8 下载器</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">HLS WORKBENCH</p>
+      <h1>M3U8 下载器</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="submit-band" aria-labelledby="new-task-title">
+      <div class="section-heading">
+        <h2 id="new-task-title">新建任务</h2>
+        <p id="service-state">正在检查服务状态</p>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="输入类型">
+        <button class="tab active" type="button" role="tab" data-tab="url" aria-selected="true">在线 URL</button>
+        <button class="tab" type="button" role="tab" data-tab="upload" aria-selected="false">上传 M3U8</button>
+      </div>
+
+      <form id="url-form" class="task-form">
+        <div class="field wide">
+          <label for="source-url">M3U8 URL</label>
+          <input id="source-url" name="url" type="url" required placeholder="https://example.com/master.m3u8">
+        </div>
+        <div class="field">
+          <label for="url-output-name">文件名</label>
+          <input id="url-output-name" name="output_name" value="video" required>
+        </div>
+        <div class="field">
+          <label for="url-output-subdir">输出子目录</label>
+          <input id="url-output-subdir" name="output_subdir" placeholder="shows/season-1">
+        </div>
+        <details class="advanced wide">
+          <summary>请求头</summary>
+          <div class="header-grid">
+            <input name="user_agent" placeholder="User-Agent">
+            <input name="referer" placeholder="Referer（根据 URL 自动推导）">
+            <input name="cookie" type="password" placeholder="Cookie">
+            <input name="authorization" type="password" placeholder="Authorization">
+          </div>
+        </details>
+        <label class="check-field wide">
+          <input name="ignore_certificate_errors" type="checkbox">
+          <span>忽略 HTTPS 证书错误（仅用于确认可信但证书链异常的来源）</span>
+        </label>
+        <div class="form-action wide">
+          <button type="submit">开始下载</button>
+        </div>
+      </form>
+
+      <form id="upload-form" class="task-form hidden">
+        <div class="field wide">
+          <label for="playlist-file">M3U8 文件</label>
+          <input id="playlist-file" name="file" type="file" accept=".m3u8,application/vnd.apple.mpegurl" required>
+        </div>
+        <div class="field wide">
+          <label for="base-url">Base URL</label>
+          <input id="base-url" name="base_url" type="url" placeholder="相对 URI 文件必须填写，例如 https://cdn.example.com/path/">
+        </div>
+        <div class="field">
+          <label for="upload-output-name">文件名</label>
+          <input id="upload-output-name" name="output_name" value="video" required>
+        </div>
+        <div class="field">
+          <label for="upload-output-subdir">输出子目录</label>
+          <input id="upload-output-subdir" name="output_subdir" placeholder="shows/season-1">
+        </div>
+        <label class="check-field wide">
+          <input name="ignore_certificate_errors" type="checkbox">
+          <span>忽略 HTTPS 证书错误（仅用于确认可信但证书链异常的来源）</span>
+        </label>
+        <div class="form-action wide">
+          <button type="submit">上传并下载</button>
+        </div>
+      </form>
+      <p id="form-message" role="status"></p>
+    </section>
+
+    <section class="tasks-band" aria-labelledby="tasks-title">
+      <div class="section-heading tasks-heading">
+        <div>
+          <h2 id="tasks-title">任务队列</h2>
+          <p id="task-count">0 个任务</p>
+        </div>
+        <button id="refresh-tasks" class="secondary" type="button">刷新</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>文件</th><th>状态</th><th>进度</th><th>速度 / ETA</th><th>尝试</th><th>操作</th></tr>
+          </thead>
+          <tbody id="task-rows">
+            <tr><td colspan="6" class="empty">暂无任务</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="log-dialog">
+    <div class="dialog-heading">
+      <h2>任务日志</h2>
+      <button id="close-log" class="secondary" type="button">关闭</button>
+    </div>
+    <pre id="log-output"></pre>
+  </dialog>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
